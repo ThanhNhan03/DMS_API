@@ -28,7 +28,7 @@ namespace DMS_API.Controllers
                 return NotFound();
             }
 
-            var orderDTOs = _mapper.Map<OrderDTO>(orders);
+            var orderDTOs = _mapper.Map<List<OrderDTO> >(orders);
             return Ok(orderDTOs);
         }
     }

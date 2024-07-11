@@ -26,7 +26,8 @@ namespace DMS_API.Helpers
             CreateMap<Booking, BookingDTO>()
                 .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.Room.Name))
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
-  
+            CreateMap<Order, OrderDTO>().ReverseMap();
+
 
             //Request DTOs
             CreateMap<AddFloorRequestDTO, Floor>();
