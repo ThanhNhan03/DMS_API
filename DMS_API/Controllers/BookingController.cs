@@ -140,7 +140,7 @@ namespace DMS_API.Controllers
             return Ok(bookingDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/get/{id}")]
         public async Task<IActionResult> GetBooking(Guid id)
         {
             var booking = await _unitOfWork.Bookings.GetByIdAsync(id);
@@ -150,7 +150,7 @@ namespace DMS_API.Controllers
             return Ok(bookingDto);
         }
 
-        [HttpGet("{userId")]
+        [HttpGet("{userId}")]
         public async Task<IActionResult> GetBookingByUserId(Guid userId)
         {
             var booking = await _unitOfWork.Bookings.GetByUserIdAsync(userId);

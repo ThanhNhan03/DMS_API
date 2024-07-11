@@ -108,6 +108,7 @@ builder.Services.AddScoped<IFloorRepository, FloorRepository>();
 builder.Services.AddScoped<IHouseRepository, HouseRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 var mapperConfig = new MapperConfiguration(mc =>
 {
