@@ -53,7 +53,9 @@ namespace DMS_API.DataAccess
             modelBuilder.Entity<Dorm>()
                 .HasMany(d => d.Floors)
                 .WithOne(f => f.Dorm)
-                .HasForeignKey(f => f.DormId);
+                .HasForeignKey(f => f.DormId)
+                .OnDelete(DeleteBehavior.Cascade); // Add this line 
+
 
             modelBuilder.Entity<Floor>()
                 .HasMany(f => f.Houses)

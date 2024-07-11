@@ -10,7 +10,7 @@ namespace DMS_API.Helpers
         public MappingProfile() 
         {
             //Domain to DTO and reverse
-            CreateMap<Dorm, DormDTO>();
+            CreateMap<Dorm, DormDTO>().ReverseMap();
             CreateMap<Floor, FloorDTO>();
             CreateMap<House, HouseDTO>()
                 .ForMember(dest => dest.FloorName, opt => opt.MapFrom(src => src.Floor.Name));
