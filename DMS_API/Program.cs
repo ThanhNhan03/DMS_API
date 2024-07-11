@@ -10,7 +10,10 @@ using System.Text;
 using AutoMapper;
 using DMS_API.Helpers;
 using DMS_API.Services;
+using OfficeOpenXml;
 
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 var builder = WebApplication.CreateBuilder(args);
 
 

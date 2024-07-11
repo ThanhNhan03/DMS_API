@@ -6,6 +6,10 @@ using DMS_API.Repository.Interface;
 using AutoMapper;
 using System;
 using System.Threading.Tasks;
+using OfficeOpenXml;
+using static System.Net.WebRequestMethods;
+using DMS_API.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace DMS_API.Controllers
 {
@@ -15,12 +19,16 @@ namespace DMS_API.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public BookingController(IUnitOfWork unitOfWork, IMapper mapper)
+
+        public BookingController(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _emailService = emailService;
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateBooking([FromBody] CreateBookingRequestDTO request)
@@ -98,6 +106,10 @@ namespace DMS_API.Controllers
             });
 
             await _unitOfWork.SaveChanges();
+            // Send OTP via email
+            await _emailService.SendEmailAsync(user.Email,
+                "Booking is approved", $"Your booking is approved please go the the web to see your room.");
+
 
             var bookingDto = _mapper.Map<BookingDTO>(booking);
             return Ok(bookingDto);
