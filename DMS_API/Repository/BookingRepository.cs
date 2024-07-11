@@ -14,20 +14,12 @@ namespace DMS_API.Repository
             _context = context;
         }
 
-        public async Task<Booking> GetByIdAsync(Guid id)
+        public async Task<Booking?> GetByIdAsync(Guid id)
         {
             return await _context.Bookings
                 .Include(b => b.Room)
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.Id == id);
-        }
-
-        public async Task<IEnumerable<Booking>> GetAllAsync()
-        {
-            return await _context.Bookings
-                .Include(b => b.Room)
-                .Include(b => b.User)
-                .ToListAsync();
         }
 
         public async Task UpdateAsync(Guid id, UpdateBookingRequestDTO booking)
@@ -48,10 +40,20 @@ namespace DMS_API.Repository
             _context.Entry(existingBooking).State = EntityState.Modified;
         }
 
-        public async Task<Booking> GetByUserIdAsync(Guid userId)
+
+        public async Task<IEnumerable<Booking?>> GetAllAsync()
         {
             return await _context.Bookings
-                .FirstOrDefaultAsync(b => b.UserId == userId && b.Status == "approved");
+                .Include(b => b.Room)
+                .Include(b => b.User)
+                .ToListAsync();
+        }
+        public async Task<Booking?> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Bookings
+                .Include(b => b.Room)
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.UserId == userId);
         }
     }
 }

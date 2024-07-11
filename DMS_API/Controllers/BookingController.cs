@@ -149,5 +149,22 @@ namespace DMS_API.Controllers
             var bookingDto = _mapper.Map<BookingDTO>(booking);
             return Ok(bookingDto);
         }
+
+        [HttpGet("{userId")]
+        public async Task<IActionResult> GetBookingByUserId(Guid userId)
+        {
+            var booking = await _unitOfWork.Bookings.GetByUserIdAsync(userId);
+            if (booking == null) return NotFound($"Booking by userId:{userId} not found");
+            var bookingDto = _mapper.Map<BookingDTO>(booking);
+            return Ok(bookingDto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            var bookings = await _unitOfWork.Bookings.GetAllAsync();
+            var bookingDtos = _mapper.Map<BookingDTO[]>(bookings);
+            return Ok(bookingDtos);
+        }
     }
 }
