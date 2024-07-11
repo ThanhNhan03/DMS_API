@@ -5,6 +5,7 @@ namespace DMS_API.Models.DTO
     public class BookingDTO
     {
         public Guid Id { get; set; }
+        public Guid RoomId { get; set; }
         public string RoomName { get; set; }
         public string UserName { get; set; }
         public string RoomType { get; set; }
