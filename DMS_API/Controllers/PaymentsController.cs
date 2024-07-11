@@ -14,12 +14,14 @@ namespace DMS_API.Controllers
         private readonly IVNPayService _vnPayService;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
-        public PaymentsController(IVNPayService vnPayService, IMapper mapper, IUnitOfWork unitOfWork)
+        public PaymentsController(IVNPayService vnPayService, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _vnPayService = vnPayService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         // POST: api/payments/create
@@ -67,8 +69,21 @@ namespace DMS_API.Controllers
             order.Status = "Completed";
             await _unitOfWork.SaveChanges();
 
+            // Retrieve user information to send email
+            var user = await _unitOfWork.Users.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            // Compose email content
+            var emailSubject = "Payment Receipt";
+            var emailMessage = $"Dear {user.UserName},\n\nYour payment of {amount} VND has been successfully processed.\n\nOrder Details:\nOrder ID: {order.OrderReference}\nAmount: {amount} VND\nStatus: Completed\n\nThank you for your payment.\n\nBest regards,\nDMS Team";
+
+            // Send email
+            await _emailService.SendEmailAsync(toEmail: user.Email, emailSubject, emailMessage);
+
             return Ok(paymentResponse);
         }
-
     }
 }
