@@ -3,6 +3,8 @@ using DMS_API.Models.DTO;
 using DMS_API.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DMS_API.Controllers
 {
@@ -28,7 +30,20 @@ namespace DMS_API.Controllers
                 return NotFound();
             }
 
-            var orderDTOs = _mapper.Map<List<OrderDTO> >(orders);
+            var orderDTOs = _mapper.Map<List<OrderDTO>>(orders);
+            return Ok(orderDTOs);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrdersAsync() // Add this method
+        {
+            var orders = await _unitOfWork.Orders.GetAllOrdersAsync();
+            if (orders == null)
+            {
+                return NotFound();
+            }
+
+            var orderDTOs = _mapper.Map<List<OrderDTO>>(orders);
             return Ok(orderDTOs);
         }
     }

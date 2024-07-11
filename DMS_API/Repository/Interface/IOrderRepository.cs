@@ -6,5 +6,6 @@ namespace DMS_API.Repository.Interface
     {
         Task<Order?> GetByOrderReferenceAsync(string orderReference);
         Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId);
+        Task<IEnumerable<Order>> GetAllOrdersAsync();
     }
 }

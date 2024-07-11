@@ -25,6 +25,11 @@ namespace DMS_API.Repository
             var orders = await _context.Order.Where(o => o.UserId == userId).ToListAsync();
             return orders;
         }
+        public async Task<IEnumerable<Order>> GetAllOrdersAsync() // Implement this method
+        {
+            var orders = await _context.Order.ToListAsync();
+            return orders;
+        }
     }
 
 }
