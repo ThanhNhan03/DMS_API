@@ -178,5 +178,18 @@ namespace DMS_API.Controllers
             var bookingDtos = _mapper.Map<BookingDTO[]>(bookings);
             return Ok(bookingDtos);
         }
+
+        [HttpGet("start-date")]
+        public async Task<IActionResult> GetAllBookingsOrderedByStartDate()
+        {
+            var bookings = await _unitOfWork.Bookings.GetAllBookingsOrderedByStartDateAsync();
+            if (bookings == null || !bookings.Any())
+            {
+                return NotFound("No bookings found");
+            }
+
+            var bookingDtos = _mapper.Map<List<BookingDTO>>(bookings);
+            return Ok(bookingDtos);
+        }
     }
 }

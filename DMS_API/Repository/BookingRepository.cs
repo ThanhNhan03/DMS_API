@@ -55,5 +55,14 @@ namespace DMS_API.Repository
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.UserId == userId);
         }
+
+        public async Task<List<Booking>> GetAllBookingsOrderedByStartDateAsync()
+        {
+            var bookings = await _context.Bookings
+                 .OrderByDescending(b => b.StartDate)
+                 .ToListAsync();
+
+            return bookings;
+        }
     }
 }
