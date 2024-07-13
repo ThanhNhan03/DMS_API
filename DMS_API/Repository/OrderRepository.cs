@@ -22,12 +22,16 @@ namespace DMS_API.Repository
 
         public async Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId)
         {
-            var orders = await _context.Order.Where(o => o.UserId == userId).ToListAsync();
+            var orders = await _context.Order.Where(o => o.UserId == userId)
+                .Include(o => o.User)
+                .ToListAsync();
             return orders;
         }
         public async Task<IEnumerable<Order>> GetAllOrdersAsync() // Implement this method
         {
-            var orders = await _context.Order.ToListAsync();
+            var orders = await _context.Order
+                .Include(o => o.User)
+                .ToListAsync();
             return orders;
         }
     }

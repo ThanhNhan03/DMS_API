@@ -148,7 +148,7 @@ namespace DMS_API.Controllers
 
             // Generate OTP (One-Time Password)
             var otp = new Random().Next(100000, 999999).ToString(); // Example: Generate a 6-digit OTP
-            var expirationTime = DateTime.UtcNow.AddMinutes(15); // OTP expires in 15 minutes
+            var expirationTime = DateTime.UtcNow.AddMinutes(5); // OTP expires in 15 minutes
 
             // Save OTP and expiration time to database or in-memory cache
             // Example: user.OTP = otp; user.OTPExpirationTime = expirationTime; await _userManager.UpdateAsync(user);

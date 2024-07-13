@@ -91,6 +91,11 @@ namespace DMS_API.Controllers
             user.Balance.Amount -= booking.TotalPrice;
             room.Capacity -= 1;
 
+            if (room.Capacity == 0)
+            {
+                room.Status = "Full";
+            }
+
             var updateBookingRequest = _mapper.Map<UpdateBookingRequestDTO>(booking);
             await _unitOfWork.Bookings.UpdateAsync(booking.Id, updateBookingRequest);
 
@@ -106,10 +111,9 @@ namespace DMS_API.Controllers
             });
 
             await _unitOfWork.SaveChanges();
-            // Send OTP via email
+      
             await _emailService.SendEmailAsync(user.Email,
                 "Booking is approved", $"Your booking is approved please go the the web to see your room.");
-
 
             var bookingDto = _mapper.Map<BookingDTO>(booking);
             return Ok(bookingDto);
@@ -179,7 +183,7 @@ namespace DMS_API.Controllers
             return Ok(bookingDtos);
         }
 
-        [HttpGet("start-date")]
+        [HttpGet("orderby-startdate")]
         public async Task<IActionResult> GetAllBookingsOrderedByStartDate()
         {
             var bookings = await _unitOfWork.Bookings.GetAllBookingsOrderedByStartDateAsync();

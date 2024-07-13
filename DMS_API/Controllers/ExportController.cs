@@ -141,7 +141,7 @@ namespace DMS_API.Controllers
             {
                 var order = orderDtos[i];
                 worksheet.Cells[i + 2, 1].Value = order.Id.ToString();
-                worksheet.Cells[i + 2, 2].Value = order.UserId.ToString();
+                worksheet.Cells[i + 2, 2].Value = order.UserName.ToString();
                 worksheet.Cells[i + 2, 3].Value = order.OrderReference;
                 worksheet.Cells[i + 2, 4].Value = order.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss");
                 worksheet.Cells[i + 2, 5].Value = order.Status;
