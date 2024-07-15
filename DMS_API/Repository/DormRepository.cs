@@ -19,7 +19,7 @@ namespace DMS_API.Repository
         {
             try
             {
-                var dorms = await _context.Dorms.ToListAsync();
+                var dorms = await _context.Dorms.AsSplitQuery().ToListAsync();
                 return dorms;
             }
             catch (Exception ex)

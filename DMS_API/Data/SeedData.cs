@@ -1,6 +1,8 @@
 using DMS_API.Models.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace DMS_API.Data
 {
@@ -108,17 +110,18 @@ namespace DMS_API.Data
             var rooms = new List<Room>();
             foreach (var floor in floors)
             {
+                int floorNumber = int.Parse(floor.Name.Split(' ')[1]);
                 for (int j = 1; j <= 6; j++)
                 {
                     var houseId = Guid.NewGuid();
                     houses.Add(new House
                     {
                         Id = houseId,
-                        Name = $"P.{floor.Name}{j}",
+                        Name = $"P.{floorNumber}0{j}",
                         FloorId = floor.Id,
-                        Description = $"Description for House {j} in {floor.Name}",
+                        Description = $"Description for House {j} on {floor.Name}",
                         Status = "Available",
-                        Capacity = 3
+                        Capacity = 13
                     });
 
                     rooms.Add(new Room

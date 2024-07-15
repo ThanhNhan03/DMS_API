@@ -25,7 +25,9 @@ namespace DMS_API.Helpers
             CreateMap<Balance, BalanceDTO>();
             CreateMap<Booking, BookingDTO>()
                 .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.Room.Name))
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.House, opt => opt.MapFrom(src => src.Room.House)); // Map house information
+
             CreateMap<Order, OrderDTO>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
 

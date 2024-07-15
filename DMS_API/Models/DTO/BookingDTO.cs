@@ -14,7 +14,7 @@ namespace DMS_API.Models.DTO
         public DateTime EndDate { get; set; }
         public float TotalPrice { get; set; }
         public string Status { get; set; }
-
+        public HouseDTO? House { get; set; }
 
     }
 }
