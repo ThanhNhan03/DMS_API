@@ -9,5 +9,6 @@
         public Service Service { get; set; }
         public DateTime RequestDate { get; set; }
         public int UsageCount { get; set; } = 1; 
+        public string Status { get; set; } = "pending";
     }
 }
