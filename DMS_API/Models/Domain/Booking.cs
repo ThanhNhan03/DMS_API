@@ -14,5 +14,6 @@
 
         public Room Room { get; set; }
         public AppUser User { get; set; }
+        public ICollection<BookingService> BookingServices { get; set; }
     }
 }

@@ -11,6 +11,8 @@ namespace DMS_API.Repository.Interface
         IBalanceRepository Balances { get; }
         IOrderRepository Orders { get; }
         IBookingRepository Bookings { get; }
+        IServiceRepository Services { get; }
+
         Task SaveChanges();
     }
 }

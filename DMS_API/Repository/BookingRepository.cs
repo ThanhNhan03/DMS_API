@@ -17,9 +17,12 @@ namespace DMS_API.Repository
         public async Task<Booking?> GetByIdAsync(Guid id)
         {
             return await _context.Bookings
-                .Include(b => b.Room)
+               .Include(b => b.Room)
                 .ThenInclude(r => r.House)
+                 .ThenInclude(h => h.Floor)
+                .ThenInclude(f => f.Dorm)
                 .Include(b => b.User)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
@@ -47,6 +50,8 @@ namespace DMS_API.Repository
             return await _context.Bookings
                 .Include(b => b.Room)
                 .ThenInclude(r => r.House)
+                 .ThenInclude(h => h.Floor)
+                .ThenInclude(f => f.Dorm)
                 .Include(b => b.User)
                 .AsSplitQuery()
                 .ToListAsync();
@@ -56,6 +61,8 @@ namespace DMS_API.Repository
             return await _context.Bookings
                 .Include(b => b.Room)
                 .ThenInclude(r => r.House)
+                 .ThenInclude(h => h.Floor)
+                .ThenInclude(f => f.Dorm)
                 .Include(b => b.User)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(b => b.UserId == userId);

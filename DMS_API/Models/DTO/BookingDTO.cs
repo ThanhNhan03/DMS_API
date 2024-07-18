@@ -6,6 +6,8 @@ namespace DMS_API.Models.DTO
     {
         public Guid Id { get; set; }
         public Guid RoomId { get; set; }
+        public string DormName { get; set; }
+        public string HouseName { get; set; }
         public string RoomName { get; set; }
         public string UserName { get; set; }
         public string RoomType { get; set; }
@@ -14,7 +16,7 @@ namespace DMS_API.Models.DTO
         public DateTime EndDate { get; set; }
         public float TotalPrice { get; set; }
         public string Status { get; set; }
-        public HouseDTO? House { get; set; }
+        //public DormDTO? Dorm { get; set; }
 
     }
 }
