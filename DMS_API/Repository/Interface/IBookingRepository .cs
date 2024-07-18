@@ -7,9 +7,10 @@ namespace DMS_API.Repository.Interface
     {
         Task<Booking?> GetByIdAsync(Guid id);
         Task UpdateAsync(Guid id, UpdateBookingRequestDTO booking);
+        Task UpdateStatusAsync(Guid id, string status);
         Task<IEnumerable<Booking?>> GetAllAsync();
         Task<Booking?> GetByUserIdAsync(Guid userId);
-
         Task<List<Booking>> GetAllBookingsOrderedByStartDateAsync();
+        Task<IEnumerable<Booking>> GetExpiredBookingsAsync(DateTime expirationDate);
     }
 }

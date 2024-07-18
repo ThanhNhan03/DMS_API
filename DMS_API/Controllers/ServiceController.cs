@@ -80,5 +80,13 @@ namespace DMS_API.Controllers
             _unitOfWork.Services.Delete(service);
             return NoContent();
         }
+
+        [HttpGet("all-service-requests")]
+        public async Task<IActionResult> GetAllServiceRequests()
+        {
+            var serviceRequests = await _unitOfWork.Services.GetAllServiceRequestsAsync();
+            var serviceRequestDtos = _mapper.Map<IEnumerable<BookingServiceDTO>>(serviceRequests);
+            return Ok(serviceRequestDtos);
+        }
     }
 }

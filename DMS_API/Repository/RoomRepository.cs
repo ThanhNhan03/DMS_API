@@ -46,6 +46,12 @@ namespace DMS_API.Repository
             if (roomToUpdate == null)
                 throw new Exception("Room not found");
 
+            roomToUpdate.Capacity = room.Capacity;
+
+            _context.Rooms.Attach(roomToUpdate);
+            _context.Entry(roomToUpdate).State = EntityState.Modified;
+           
+
             await _context.SaveChangesAsync();
         }
     }

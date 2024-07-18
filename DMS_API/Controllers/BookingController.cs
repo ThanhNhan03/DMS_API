@@ -52,13 +52,21 @@ namespace DMS_API.Controllers
             if (existingBooking != null && existingBooking.Status == "approved")
             {
                 return BadRequest("User already has an approved booking and cannot book another room.");
+            } else if (existingBooking != null && existingBooking.Status == "pending")
+            {
+                return BadRequest("User already has a pending booking and cannot book another room.");
+            } else if (existingBooking != null && existingBooking.Status == "expiring")
+            {
+                // If the user has an expiring booking, update the status to 'pending'
+                await _unitOfWork.Bookings.UpdateStatusAsync(existingBooking.Id, "pending");
             }
+            
 
             var booking = _mapper.Map<Booking>(request);
             booking.Id = Guid.NewGuid();
             booking.BookingDate = DateTime.UtcNow;
             booking.StartDate = DateTime.UtcNow;
-            booking.EndDate = DateTime.UtcNow.AddMonths(4); // Booking duration is 4 months
+            booking.EndDate = DateTime.UtcNow.AddMonths(1); // Booking duration is 1 months
             booking.TotalPrice = totalPrice;
             booking.Status = "pending";
 
@@ -87,6 +95,7 @@ namespace DMS_API.Controllers
 
             if (room.Capacity <= 0) return BadRequest("Room is fully booked");
 
+           
             booking.Status = "approved";
             user.Balance.Amount -= booking.TotalPrice;
             room.Capacity -= 1;
@@ -195,5 +204,72 @@ namespace DMS_API.Controllers
             var bookingDtos = _mapper.Map<List<BookingDTO>>(bookings);
             return Ok(bookingDtos);
         }
+        [HttpGet("expired-bookings")]
+        public async Task<IActionResult> GetExpiredBookings()
+        {
+            var currentDate = DateTime.UtcNow;
+
+            var expiredBookings = await _unitOfWork.Bookings.GetExpiredBookingsAsync(currentDate);
+
+            if (expiredBookings == null || !expiredBookings.Any())
+            {
+                return NotFound("No expired bookings found");
+            }
+
+            var expiredBookingDtos = _mapper.Map<List<BookingDTO>>(expiredBookings);
+            return Ok(expiredBookingDtos);
+        }
+
+        [HttpPost("notify-expiring-bookings")]
+        public async Task<IActionResult> NotifyExpiringBookings()
+        {
+            var currentDate = DateTime.UtcNow;
+            var expiringBookings = await _unitOfWork.Bookings.GetExpiredBookingsAsync(currentDate);
+
+            if (expiringBookings == null || !expiringBookings.Any())
+            {
+                return NotFound("No expiring bookings found");
+            }
+
+            foreach (var booking in expiringBookings)
+            {
+                var user = await _unitOfWork.Users.GetUserByIdAsync(booking.UserId);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    var subject = "Your Booking is Expiring Soon";
+                    var message = $@"
+                <html>
+                <body style='font-family: Arial, sans-serif; color: #333;'>
+                    <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+                        <h2 style='color: #0056b3;'>Booking Expiration Notice</h2>
+                        <p>Dear {user.UserName},</p>
+                        <p>Your booking for <strong>Room {booking.Room.House.Name}</strong> will expire on <strong>{booking.EndDate:yyyy-MM-dd}</strong>.</p>
+                        <p>Please make sure to renew your booking if you wish to continue staying.</p>
+                        <p style='margin-top: 30px;'>Best regards,</p>
+                        <p style='color: #0056b3;'>The Dormitory Management Team</p>
+                        <hr style='border-top: 1px solid #ddd; margin: 20px 0;' />
+                        <p style='font-size: 0.8em; color: #888;'>This is an automated message, please do not reply.</p>
+                    </div>
+                </body>
+                </html>";
+
+                    await _emailService.SendEmailAsync(user.Email, subject, message);
+                    // Update the booking status to 'expiring'
+                    await _unitOfWork.Bookings.UpdateStatusAsync(booking.Id, "expiring");
+
+                    var room = await _unitOfWork.Rooms.GetByIdAsync(booking.RoomId);
+                    var updateRoomDto = new UpdateRoomRequestDTO
+                    {
+                        Capacity = room.Capacity + 1 // Increment the available count
+                    };
+                    await _unitOfWork.Rooms.UpdateAsync(booking.RoomId, updateRoomDto);
+                }
+            }
+
+            return Ok("Email notifications sent to expiring bookings.");
+        }
+
+
+
     }
 }

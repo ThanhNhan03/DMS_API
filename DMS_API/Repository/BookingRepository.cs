@@ -44,6 +44,22 @@ namespace DMS_API.Repository
             _context.Entry(existingBooking).State = EntityState.Modified;
         }
 
+        public async Task UpdateStatusAsync(Guid id, string status)
+        {
+            var existingBooking = await GetByIdAsync(id);
+            if (existingBooking == null)
+            {
+                throw new KeyNotFoundException("Booking not found");
+            }
+
+            existingBooking.Status = status;
+
+            _context.Bookings.Attach(existingBooking);
+            _context.Entry(existingBooking).Property(b => b.Status).IsModified = true;
+
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task<IEnumerable<Booking?>> GetAllAsync()
         {
@@ -75,6 +91,19 @@ namespace DMS_API.Repository
                  .ToListAsync();
 
             return bookings;
+        }
+
+        public async Task<IEnumerable<Booking>> GetExpiredBookingsAsync(DateTime expirationDate)
+        {
+            return await _context.Bookings
+                .Where(b => b.EndDate <= expirationDate && b.Status != "canceled")
+                .Include(b => b.Room)
+                .ThenInclude(r => r.House)
+                 .ThenInclude(h => h.Floor)
+                .ThenInclude(f => f.Dorm)
+                .Include(b => b.User)
+                .AsSplitQuery()
+                .ToListAsync();
         }
     }
 }
