@@ -76,9 +76,25 @@ namespace DMS_API.Controllers
                 return NotFound(new { message = "User not found." });
             }
 
-            // Compose email content
             var emailSubject = "Payment Receipt";
-            var emailMessage = $"Dear {user.UserName},\n\nYour payment of {amount} VND has been successfully processed.\n\nOrder Details:\nOrder ID: {order.OrderReference}\nAmount: {amount} VND\nStatus: Completed\n\nThank you for your payment.\n\nBest regards,\nDMS Team";
+            var emailMessage = $@"
+            <html>
+            <body>
+                <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                    <h2 style='color: #4CAF50;'>Payment Receipt</h2>
+                    <p>Dear {user.UserName},</p>
+                    <p>Your payment of <strong>{amount} VND</strong> has been successfully processed.</p>
+                    <h3>Order Details:</h3>
+                    <ul style='list-style-type: none; padding: 0;'>
+                        <li><strong>Order ID:</strong> {order.OrderReference}</li>
+                        <li><strong>Amount:</strong> {amount} VND</li>
+                        <li><strong>Status:</strong> Completed</li>
+                    </ul>
+                    <p>Thank you for your payment.</p>
+                    <p>Best regards,<br>FPT EDU</p>
+                </div>
+            </body>
+            </html>";
 
             // Send email
             await _emailService.SendEmailAsync(toEmail: user.Email, emailSubject, emailMessage);

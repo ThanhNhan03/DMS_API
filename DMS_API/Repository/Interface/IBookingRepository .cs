@@ -12,5 +12,7 @@ namespace DMS_API.Repository.Interface
         Task<Booking?> GetByUserIdAsync(Guid userId);
         Task<List<Booking>> GetAllBookingsOrderedByStartDateAsync();
         Task<IEnumerable<Booking>> GetExpiredBookingsAsync(DateTime expirationDate);
+        //GetExpiredBookingByUserIdAsync
+        Task<IEnumerable<Booking>> GetExpiredBookingByUserIdAsync(Guid userId);
     }
 }

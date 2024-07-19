@@ -48,19 +48,37 @@ namespace DMS_API.Controllers
             if (user.Balance.Amount < totalPrice) return BadRequest("Insufficient balance");
 
             // Check if the user already has an approved booking
+            // Check if the user already has an approved or pending booking
             var existingBooking = await _unitOfWork.Bookings.GetByUserIdAsync(user.Id);
-            if (existingBooking != null && existingBooking.Status == "approved")
+            if (existingBooking != null)
             {
-                return BadRequest("User already has an approved booking and cannot book another room.");
-            } else if (existingBooking != null && existingBooking.Status == "pending")
-            {
-                return BadRequest("User already has a pending booking and cannot book another room.");
-            } else if (existingBooking != null && existingBooking.Status == "expiring")
-            {
-                // If the user has an expiring booking, update the status to 'pending'
-                await _unitOfWork.Bookings.UpdateStatusAsync(existingBooking.Id, "pending");
+                if (existingBooking.Status == "approved")
+                {
+                    return BadRequest("User already has an approved booking and cannot book another room.");
+                }
+                else if (existingBooking.Status == "pending")
+                {
+                    return BadRequest("User already has a pending booking and cannot book another room.");
+                }
+                else if (existingBooking.Status == "expiring")
+                {
+                    // Update the existing expiring booking status to pending
+                  
+                    await _unitOfWork.Bookings.UpdateAsync(existingBooking.Id, new UpdateBookingRequestDTO { 
+                        RoomId = existingBooking.RoomId,
+                        StartDate = DateTime.UtcNow,
+                        EndDate = DateTime.UtcNow.AddMonths(1),
+                        TotalPrice = existingBooking.TotalPrice,
+                        Status = "pending"
+                    });
+
+                    await _unitOfWork.SaveChanges();
+
+                    var updatedBookingDto = _mapper.Map<BookingDTO>(existingBooking);
+                    return Ok(updatedBookingDto);
+                }
             }
-            
+
 
             var booking = _mapper.Map<Booking>(request);
             booking.Id = Guid.NewGuid();
@@ -122,7 +140,9 @@ namespace DMS_API.Controllers
             await _unitOfWork.SaveChanges();
       
             await _emailService.SendEmailAsync(user.Email,
-                "Booking is approved", $"Your booking is approved please go the the web to see your room.");
+                "Booking is approved", $"Your booking is approved please go the the web to see your room" +
+                $"http://localhost:3003/user/dashboard " +
+                $".");
 
             var bookingDto = _mapper.Map<BookingDTO>(booking);
             return Ok(bookingDto);
@@ -246,7 +266,7 @@ namespace DMS_API.Controllers
                         <p>Your booking for <strong>Room {booking.Room.House.Name}</strong> will expire on <strong>{booking.EndDate:yyyy-MM-dd}</strong>.</p>
                         <p>Please make sure to renew your booking if you wish to continue staying.</p>
                         <p style='margin-top: 30px;'>Best regards,</p>
-                        <p style='color: #0056b3;'>The Dormitory Management Team</p>
+                        <p style='color: #0056b3;'>FPT EDU</p>
                         <hr style='border-top: 1px solid #ddd; margin: 20px 0;' />
                         <p style='font-size: 0.8em; color: #888;'>This is an automated message, please do not reply.</p>
                     </div>

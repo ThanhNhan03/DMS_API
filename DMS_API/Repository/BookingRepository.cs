@@ -105,5 +105,18 @@ namespace DMS_API.Repository
                 .AsSplitQuery()
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Booking>> GetExpiredBookingByUserIdAsync(Guid userId)
+        {  
+            return await _context.Bookings
+                .Where(b => b.UserId == userId && b.EndDate <= DateTime.Now && b.Status != "canceled")
+                .Include(b => b.Room)
+                .ThenInclude(r => r.House)
+                 .ThenInclude(h => h.Floor)
+                .ThenInclude(f => f.Dorm)
+                .Include(b => b.User)
+                .AsSplitQuery()
+                .ToListAsync();
+        }
     }
 }
