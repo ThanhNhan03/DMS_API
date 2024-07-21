@@ -78,6 +78,7 @@ namespace DMS_API.Controllers
             }
 
             _unitOfWork.Services.Delete(service);
+            await _unitOfWork.SaveChanges();
             return NoContent();
         }
 
