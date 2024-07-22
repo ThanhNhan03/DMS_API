@@ -98,30 +98,5 @@ namespace DMS_API.Controllers
             var serviceRequestDto = _mapper.Map<BookingServiceDTO>(serviceRequest);
             return Ok(serviceRequestDto);
         }
-        // Existing methods
-
-        [HttpGet("service-usage-percentage")]
-        public async Task<IActionResult> GetServiceUsagePercentage()
-        {
-            var serviceRequests = await _unitOfWork.Services.GetAllServiceRequestsAsync();
-            var totalRequests = serviceRequests.Count();
-            if (totalRequests == 0)
-            {
-                return Ok("No service requests found.");
-            }
-
-            var serviceUsage = serviceRequests
-                .GroupBy(sr => sr.ServiceId)
-                .Select(g => new
-                {
-                    ServiceId = g.Key,
-                    g.First().Service.ServiceName,
-                    UsagePercentage = (double)g.Count() / totalRequests * 100
-                })
-                .OrderByDescending(s => s.UsagePercentage)
-                .ToList();
-
-            return Ok(serviceUsage);
-        }
     }
 }

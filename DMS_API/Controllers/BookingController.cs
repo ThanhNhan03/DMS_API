@@ -288,8 +288,5 @@ namespace DMS_API.Controllers
 
             return Ok("Email notifications sent to expiring bookings.");
         }
-
-
-
     }
 }

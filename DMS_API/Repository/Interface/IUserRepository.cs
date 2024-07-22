@@ -9,5 +9,7 @@ namespace DMS_API.Repository.Interface
         Task<IEnumerable<AppUser>> GetAllUsersAsync();
         Task<AppUser?> GetUserByIdAsync(Guid userId);
         Task UpdateUserAsync(Guid id, UpdateUserRequestDTO updateRequest);
+        Task<IEnumerable<AppUser>> GetUsersByHouseIdAsync(Guid houseId);
+
     }
 }

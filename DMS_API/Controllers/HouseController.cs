@@ -89,5 +89,15 @@ namespace DMS_API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("{houseId}/users")]
+        public async Task<IActionResult> GetUsersByHouseId(Guid houseId)
+        {
+            var users = await _unitOfWork.Users.GetUsersByHouseIdAsync(houseId);
+            if (!users.Any()) return NotFound("No users found in this house");
+
+            var userDtos = _mapper.Map<IEnumerable<HouseUserDetailResponeDTO>>(users);
+            return Ok(userDtos);
+        }
     }
 }

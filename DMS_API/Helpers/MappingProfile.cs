@@ -13,7 +13,8 @@ namespace DMS_API.Helpers
             CreateMap<Dorm, DormDTO>().ReverseMap();
             CreateMap<Floor, FloorDTO>();
             CreateMap<House, HouseDTO>()
-                .ForMember(dest => dest.FloorName, opt => opt.MapFrom(src => src.Floor.Name));
+                .ForMember(dest => dest.FloorName, opt => opt.MapFrom(src => src.Floor.Name))
+                .ForMember(dest => dest.DormName, opt => opt.MapFrom(src => src.Floor.Dorm.Name));
             //.ForMember(dest => dest.Rooms, opt => opt.MapFrom(src => src.Rooms)); 
 
             CreateMap<Room, RoomDTO>()
@@ -22,7 +23,11 @@ namespace DMS_API.Helpers
                 .ForMember(dest => dest.DormName, opt => opt.MapFrom(src => src.House.Floor.Dorm.Name));
 
             CreateMap<AppUser, AppUserDTO>();
+                    
             CreateMap<Balance, BalanceDTO>();
+
+            CreateMap<AppUser, HouseUserDetailResponeDTO>()
+                .ForMember(dest => dest.RoomTypes, opt => opt.MapFrom(src => src.Bookings.Select(b => b.Room.RoomType).ToList()));
 
 
             CreateMap<Order, OrderDTO>()

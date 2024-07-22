@@ -118,5 +118,30 @@ namespace DMS_API.Repository
                 .AsSplitQuery()
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Booking>> GetBookingsByHouseIdAsync(Guid houseId)
+        {
+            return await _context.Bookings
+                .Include(b => b.Room)
+                .ThenInclude(r => r.House)
+                .Where(b => b.Room.HouseId == houseId)
+                .Include(b => b.User)
+                .Include(b => b.Room.RoomType)
+                .AsSplitQuery()
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Booking>> GetAllApprovedBookingsAsync()
+        {
+            return await _context.Bookings
+                .Where(b => b.Status == "approved")
+                .Include(b => b.Room)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Booking>> GetBookingRequestsCountAsync()
+        {
+            return await _context.Bookings
+                .Where(b => b.Status == "pending")
+                .Include(b => b.Room)
+                .ToListAsync();
+        }
     }
 }

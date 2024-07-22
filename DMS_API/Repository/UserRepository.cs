@@ -54,6 +54,19 @@ namespace DMS_API.Repository
            
             await _context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<AppUser>> GetUsersByHouseIdAsync(Guid houseId)
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Room)
+                .Where(b => b.Room.HouseId == houseId)
+                .ToListAsync();
+
+            var users = bookings.Select(b => b.User).Distinct();
+
+            return users;
+        }
+
 
     }
 }

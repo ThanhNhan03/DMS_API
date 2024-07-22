@@ -12,5 +12,7 @@ namespace DMS_API.Repository.Interface
         Task<List<BookingService>> GetBookingServicesAsync(Guid bookingId, Guid serviceId);
         Task<IEnumerable<BookingService>> GetAllServiceRequestsAsync();
         Task<BookingService> GetServiceRequestByIdAsync(int id);
+       Task<IEnumerable<BookingService>> GetAllPendingServiceRequestsAsync();
+        Task<IEnumerable<BookingService>> GetAllApprovedServiceRequests();
     }
 }

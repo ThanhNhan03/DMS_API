@@ -14,5 +14,8 @@ namespace DMS_API.Repository.Interface
         Task<IEnumerable<Booking>> GetExpiredBookingsAsync(DateTime expirationDate);
         //GetExpiredBookingByUserIdAsync
         Task<IEnumerable<Booking>> GetExpiredBookingByUserIdAsync(Guid userId);
+        Task<IEnumerable<Booking>> GetBookingsByHouseIdAsync(Guid houseId);
+        Task<IEnumerable<Booking>> GetAllApprovedBookingsAsync();
+        Task<IEnumerable<Booking>> GetBookingRequestsCountAsync();
     }
 }

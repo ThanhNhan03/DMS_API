@@ -97,5 +97,19 @@ namespace DMS_API.Repository
                     .ThenInclude(b => b.User)
                 .FirstOrDefaultAsync(bs => bs.Id == id);
         }
+
+        public async Task<IEnumerable<BookingService>> GetAllPendingServiceRequestsAsync()
+        {
+            return await _context.BookingServices
+              .Where(sr => sr.Status == "pending")
+              .ToListAsync();
+        }
+        public async Task<IEnumerable<BookingService>> GetAllApprovedServiceRequests()
+        {
+            return await _context.BookingServices
+              .Where(sr => sr.Status == "approved")
+              .Include(b => b.Service)
+              .ToListAsync();
+        }
     }
 }
