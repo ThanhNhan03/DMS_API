@@ -143,5 +143,15 @@ namespace DMS_API.Repository
                 .Include(b => b.Room)
                 .ToListAsync();
         }
+        public async Task DeleteAsync(Guid id)
+        {
+            var booking = await GetByIdAsync(id);
+            if (booking == null)
+            {
+                throw new KeyNotFoundException("Booking not found");
+            }
+
+            _context.Bookings.Remove(booking);
+        }
     }
 }

@@ -17,5 +17,7 @@ namespace DMS_API.Repository.Interface
         Task<IEnumerable<Booking>> GetBookingsByHouseIdAsync(Guid houseId);
         Task<IEnumerable<Booking>> GetAllApprovedBookingsAsync();
         Task<IEnumerable<Booking>> GetBookingRequestsCountAsync();
+        Task DeleteAsync(Guid id); 
+
     }
 }

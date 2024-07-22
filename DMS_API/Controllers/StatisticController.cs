@@ -64,7 +64,7 @@ namespace DMS_API.Controllers
         [HttpGet("service-request/count")]
         public async Task<IActionResult> GetApprovedServiceRequestCount()
         {
-            var count = await _unitOfWork.Services.GetAllApprovedServiceRequests();
+            var count = await _unitOfWork.Services.GetAllPendingServiceRequestsAsync();
             var totalRequests = count.Count();
             return Ok(new { totalServiceRequests = totalRequests });
         }

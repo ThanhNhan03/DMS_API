@@ -47,7 +47,6 @@ namespace DMS_API.Controllers
 
             if (user.Balance.Amount < totalPrice) return BadRequest("Insufficient balance");
 
-            // Check if the user already has an approved booking
             // Check if the user already has an approved or pending booking
             var existingBooking = await _unitOfWork.Bookings.GetByUserIdAsync(user.Id);
             if (existingBooking != null)
@@ -63,8 +62,8 @@ namespace DMS_API.Controllers
                 else if (existingBooking.Status == "expiring")
                 {
                     // Update the existing expiring booking status to pending
-                  
-                    await _unitOfWork.Bookings.UpdateAsync(existingBooking.Id, new UpdateBookingRequestDTO { 
+                    await _unitOfWork.Bookings.UpdateAsync(existingBooking.Id, new UpdateBookingRequestDTO
+                    {
                         RoomId = existingBooking.RoomId,
                         StartDate = DateTime.UtcNow,
                         EndDate = DateTime.UtcNow.AddMonths(1),
@@ -79,12 +78,30 @@ namespace DMS_API.Controllers
                 }
             }
 
+            // Deduct user's balance and reduce room capacity
+            user.Balance.Amount -= totalPrice;
+            room.Capacity -= 1;
+            if (room.Capacity == 0)
+            {
+                room.Status = "Full";
+            }
+
+            await _unitOfWork.Balances.UpdateBalanceAsync(user.Balance);
+            await _unitOfWork.Rooms.UpdateAsync(room.Id, new UpdateRoomRequestDTO
+            {
+                Name = room.Name,
+                Status = room.Status,
+                Description = room.Description,
+                Capacity = room.Capacity,
+                RoomType = room.RoomType,
+                Price = room.Price
+            });
 
             var booking = _mapper.Map<Booking>(request);
             booking.Id = Guid.NewGuid();
             booking.BookingDate = DateTime.UtcNow;
             booking.StartDate = DateTime.UtcNow;
-            booking.EndDate = DateTime.UtcNow.AddMonths(1); // Booking duration is 1 months
+            booking.EndDate = DateTime.UtcNow.AddMonths(1); // Booking duration is 1 month
             booking.TotalPrice = totalPrice;
             booking.Status = "pending";
 
@@ -104,19 +121,12 @@ namespace DMS_API.Controllers
             var user = await _unitOfWork.Users.GetUserByIdAsync(booking.UserId);
             if (user == null) return NotFound("User not found");
 
-            if (user.Balance == null) return BadRequest("User balance not found");
-
-            if (user.Balance.Amount < booking.TotalPrice) return BadRequest("Insufficient balance");
-
             var room = await _unitOfWork.Rooms.GetByIdAsync(booking.RoomId);
             if (room == null) return NotFound("Room not found");
 
             if (room.Capacity <= 0) return BadRequest("Room is fully booked");
 
-           
             booking.Status = "approved";
-            user.Balance.Amount -= booking.TotalPrice;
-            room.Capacity -= 1;
 
             if (room.Capacity == 0)
             {
@@ -126,7 +136,6 @@ namespace DMS_API.Controllers
             var updateBookingRequest = _mapper.Map<UpdateBookingRequestDTO>(booking);
             await _unitOfWork.Bookings.UpdateAsync(booking.Id, updateBookingRequest);
 
-            await _unitOfWork.Balances.UpdateBalanceAsync(user.Balance);
             await _unitOfWork.Rooms.UpdateAsync(room.Id, new UpdateRoomRequestDTO
             {
                 Name = room.Name,
@@ -138,18 +147,17 @@ namespace DMS_API.Controllers
             });
 
             await _unitOfWork.SaveChanges();
-      
+
             await _emailService.SendEmailAsync(user.Email,
-                "Booking is approved", $"Your booking is approved please go the the web to see your room" +
-                $"http://localhost:3003/user/dashboard " +
-                $".");
+                "Booking is approved", $"Your booking is approved. Please go to the web to see your room: " +
+                $"http://localhost:3003/user/dashboard.");
 
             var bookingDto = _mapper.Map<BookingDTO>(booking);
             return Ok(bookingDto);
         }
 
         [HttpPut("{id}/cancel")]
-        public async Task<IActionResult> CancelBooking(Guid id)
+        public async Task<IActionResult> CancelBooking(Guid id, [FromBody] CancelRequestDTO cancelRequest)
         {
             var booking = await _unitOfWork.Bookings.GetByIdAsync(id);
             if (booking == null) return NotFound("Booking not found");
@@ -162,12 +170,17 @@ namespace DMS_API.Controllers
             var room = await _unitOfWork.Rooms.GetByIdAsync(booking.RoomId);
             if (room == null) return NotFound("Room not found");
 
-            booking.Status = "canceled";
+            // Refund the user's balance
             user.Balance.Amount += booking.TotalPrice;
 
-            var updateBookingRequest = _mapper.Map<UpdateBookingRequestDTO>(booking);
-            await _unitOfWork.Bookings.UpdateAsync(booking.Id, updateBookingRequest);
+            // Update the room's capacity
+            room.Capacity += 1;
+            if (room.Status == "Full" && room.Capacity > 0)
+            {
+                room.Status = "Available";
+            }
 
+            // Update the balance and room information in the database
             await _unitOfWork.Balances.UpdateBalanceAsync(user.Balance);
             await _unitOfWork.Rooms.UpdateAsync(room.Id, new UpdateRoomRequestDTO
             {
@@ -179,11 +192,18 @@ namespace DMS_API.Controllers
                 Price = room.Price
             });
 
+            // Remove the booking from the database
+            await _unitOfWork.Bookings.DeleteAsync(booking.Id);
             await _unitOfWork.SaveChanges();
 
-            var bookingDto = _mapper.Map<BookingDTO>(booking);
-            return Ok(bookingDto);
+            // Send cancellation email
+            var subject = "Booking Cancelled";
+            var message = $"Dear {user.UserName},\n\nYour booking has been cancelled for the following reason:\n\n{cancelRequest.Reason}\n\nBest regards,\nAdmin";
+            await _emailService.SendEmailAsync(user.Email, subject, message);
+
+            return Ok("Booking cancelled and removed from the database.");
         }
+
 
         [HttpGet("/get/{id}")]
         public async Task<IActionResult> GetBooking(Guid id)
@@ -268,7 +288,7 @@ namespace DMS_API.Controllers
                         <p style='margin-top: 30px;'>Best regards,</p>
                         <p style='color: #0056b3;'>FPT EDU</p>
                         <hr style='border-top: 1px solid #ddd; margin: 20px 0;' />
-                        <p style='font-size: 0.8em; color: #888;'>This is an automated message, please do not reply.</p>
+                        <p style='font-size: 0.8em; color: #888;'>This is an automated message, please do no    t reply.</p>
                     </div>
                 </body>
                 </html>";

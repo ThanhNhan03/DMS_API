@@ -2,6 +2,7 @@
 {
     public class BookingServiceDTO
     {
+        public int id { get; set; }
         public string ServiceName { get; set; }
         public float ServicePrice { get; set; }
         public string ServiceDescription { get; set; }
@@ -14,3 +15,4 @@
 
     }
 }
+
